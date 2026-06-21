@@ -28,7 +28,7 @@
 
 - 🌐 **Live:** [https://arbiter-escrow.vercel.app](https://arbiter-escrow.vercel.app) *(deploying)*
 - 📹 **Video:** *(3-min demo, link pending)*
-- 📜 **Contract:** *(chainscan.0g.ai, pending deployment)*
+- 📜 **Contract:** [`0x04Ac696E4075D439841bb75b30ddEA7Cea27a67D`](https://chainscan.0g.ai/address/0x04Ac696E4075D439841bb75b30ddEA7Cea27a67D) on 0G Chain
 
 ---
 
@@ -126,8 +126,8 @@ TaskResolved(taskId, recipient, amount)
 ## 8. Links
 
 - 🌐 **Live Demo:** [https://arbiter-escrow.vercel.app](https://arbiter-escrow.vercel.app)
-- 💻 **GitHub:** *(link pending)*
-- 🔗 **0G Chain Explorer:** *(contract address pending)*
+- 💻 **GitHub:** [github.com/programmeryuanyuan/ArbiterEscrow](https://github.com/programmeryuanyuan/ArbiterEscrow)
+- 🔗 **Contract on 0G Chain:** [0x04Ac696E4075D439841bb75b30ddEA7Cea27a67D](https://chainscan.0g.ai/address/0x04Ac696E4075D439841bb75b30ddEA7Cea27a67D)
 - 🏆 **Built for:** [0G Zero Cup](https://0g.ai/arena/zero-cup) — June 2026
 
 ---
