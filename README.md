@@ -14,7 +14,7 @@
 
 *No jury. No oracle. No human. Pure cryptographic and hardware guarantee.*
 
-[Try It Now](https://arbiter-escrow.vercel.app/try) · [Live Dashboard](https://arbiter-escrow.vercel.app/dashboard) · [Contract on 0G Chain](https://chainscan.0g.ai/address/0xCC38524504022dADf93b5313617E8c6e61F61Db6) · [GitHub](https://github.com/programmeryuanyuan/ArbiterProtocol)
+[Try It Now](https://arbiter-protocol.vercel.app/try) · [Live Dashboard](https://arbiter-protocol.vercel.app/dashboard) · [Contract on 0G Chain](https://chainscan.0g.ai/address/0xCC38524504022dADf93b5313617E8c6e61F61Db6) · [GitHub](https://github.com/programmeryuanyuan/ArbiterProtocol)
 
 </div>
 
@@ -65,14 +65,14 @@
 
 ## 2. Demo
 
-- 🌐 **Live:** [https://arbiter-escrow.vercel.app](https://arbiter-escrow.vercel.app)
-- 🧪 **Try It:** [arbiter-escrow.vercel.app/try](https://arbiter-escrow.vercel.app/try) — no wallet needed
-- 📊 **Dashboard:** [arbiter-escrow.vercel.app/dashboard](https://arbiter-escrow.vercel.app/dashboard)
+- 🌐 **Live:** [https://arbiter-protocol.vercel.app](https://arbiter-protocol.vercel.app)
+- 🧪 **Try It:** [arbiter-protocol.vercel.app/try](https://arbiter-protocol.vercel.app/try) — no wallet needed
+- 📊 **Dashboard:** [arbiter-protocol.vercel.app/dashboard](https://arbiter-protocol.vercel.app/dashboard)
 - 📹 **Video:** *(3-min walkthrough, link pending)*
 - 📜 **Contract:** [`0xCC38524504022dADf93b5313617E8c6e61F61Db6`](https://chainscan.0g.ai/address/0xCC38524504022dADf93b5313617E8c6e61F61Db6)
 
 **Try the interactive demo in 30 seconds:**
-1. Go to [/try](https://arbiter-escrow.vercel.app/try)
+1. Go to [/try](https://arbiter-protocol.vercel.app/try)
 2. Write anything in the "Agent B's Deliverable" box
 3. Drag the **Pass Threshold** slider
 4. Click **Submit to 0G Private Computer** — watch the TEE evaluate and issue a Quality Certificate
@@ -237,8 +237,8 @@ Contract deployed on 0G Aristotle Mainnet (Chain ID 16661):
 
 | | |
 |---|---|
-| 🧪 Try It | [arbiter-escrow.vercel.app/try](https://arbiter-escrow.vercel.app/try) |
-| 🌐 Live Demo | [arbiter-escrow.vercel.app](https://arbiter-escrow.vercel.app) |
+| 🧪 Try It | [arbiter-protocol.vercel.app/try](https://arbiter-protocol.vercel.app/try) |
+| 🌐 Live Demo | [arbiter-protocol.vercel.app](https://arbiter-protocol.vercel.app) |
 | 💻 GitHub | [github.com/programmeryuanyuan/ArbiterProtocol](https://github.com/programmeryuanyuan/ArbiterProtocol) |
 | 📜 Contract | [0x04Ac...a67D on chainscan.0g.ai](https://chainscan.0g.ai/address/0xCC38524504022dADf93b5313617E8c6e61F61Db6) |
 | 🏆 Competition | [0G Zero Cup](https://0g.ai/arena/zero-cup) · June 2026 |
