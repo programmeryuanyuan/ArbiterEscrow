@@ -17,7 +17,7 @@ export const publicClient = createPublicClient({
   transport: http("https://evmrpc.0g.ai", { timeout: 8_000, retryCount: 2, retryDelay: 1_000 }),
 })
 
-export const CONTRACT_ADDRESS = "0xCC38524504022dADf93b5313617E8c6e61F61Db6" as const
+export const CONTRACT_ADDRESS = "0xCd1563bb446a209C5817Ff3F4Bd80afF441034da" as const
 
 export const DEPLOY_BLOCK = BigInt(process.env.NEXT_PUBLIC_DEPLOY_BLOCK ?? "36700000")
 

@@ -14,7 +14,7 @@
 
 *No jury. No oracle. No human. Pure cryptographic and hardware guarantee.*
 
-[Try It Now](https://arbiter-protocol.vercel.app/try) · [Live Dashboard](https://arbiter-protocol.vercel.app/dashboard) · [Contract on 0G Chain](https://chainscan.0g.ai/address/0xCC38524504022dADf93b5313617E8c6e61F61Db6) · [GitHub](https://github.com/programmeryuanyuan/ArbiterProtocol)
+[Try It Now](https://arbiter-protocol.vercel.app/try) · [Live Dashboard](https://arbiter-protocol.vercel.app/dashboard) · [Contract on 0G Chain](https://chainscan.0g.ai/address/0xCd1563bb446a209C5817Ff3F4Bd80afF441034da) · [GitHub](https://github.com/programmeryuanyuan/ArbiterProtocol)
 
 </div>
 
@@ -69,7 +69,7 @@
 - 🧪 **Try It:** [arbiter-protocol.vercel.app/try](https://arbiter-protocol.vercel.app/try) — no wallet needed
 - 📊 **Dashboard:** [arbiter-protocol.vercel.app/dashboard](https://arbiter-protocol.vercel.app/dashboard)
 - 📹 **Video:** *(3-min walkthrough, link pending)*
-- 📜 **Contract:** [`0xCC38524504022dADf93b5313617E8c6e61F61Db6`](https://chainscan.0g.ai/address/0xCC38524504022dADf93b5313617E8c6e61F61Db6)
+- 📜 **Contract:** [`0xCd1563bb446a209C5817Ff3F4Bd80afF441034da`](https://chainscan.0g.ai/address/0xCd1563bb446a209C5817Ff3F4Bd80afF441034da)
 
 **Try the interactive demo in 30 seconds:**
 1. Go to [/try](https://arbiter-protocol.vercel.app/try)
@@ -197,7 +197,7 @@ Contract deployed on 0G Aristotle Mainnet (Chain ID 16661):
 
 | | |
 |---|---|
-| **Address** | [`0xCC38524504022dADf93b5313617E8c6e61F61Db6`](https://chainscan.0g.ai/address/0xCC38524504022dADf93b5313617E8c6e61F61Db6) |
+| **Address** | [`0xCd1563bb446a209C5817Ff3F4Bd80afF441034da`](https://chainscan.0g.ai/address/0xCd1563bb446a209C5817Ff3F4Bd80afF441034da) |
 | **Deploy TX** | [`0x615045f8...`](https://chainscan.0g.ai/tx/0x615045f8ed0d70d6fd1d44a509a6b510c1cd7233784b77b17515735e4a2439cf) |
 | **Verified** | Sourcify ✅ |
 | **Explorer** | [chainscan.0g.ai](https://chainscan.0g.ai) |
@@ -240,7 +240,7 @@ Contract deployed on 0G Aristotle Mainnet (Chain ID 16661):
 | 🧪 Try It | [arbiter-protocol.vercel.app/try](https://arbiter-protocol.vercel.app/try) |
 | 🌐 Live Demo | [arbiter-protocol.vercel.app](https://arbiter-protocol.vercel.app) |
 | 💻 GitHub | [github.com/programmeryuanyuan/ArbiterProtocol](https://github.com/programmeryuanyuan/ArbiterProtocol) |
-| 📜 Contract | [0x04Ac...a67D on chainscan.0g.ai](https://chainscan.0g.ai/address/0xCC38524504022dADf93b5313617E8c6e61F61Db6) |
+| 📜 Contract | [0x04Ac...a67D on chainscan.0g.ai](https://chainscan.0g.ai/address/0xCd1563bb446a209C5817Ff3F4Bd80afF441034da) |
 | 🏆 Competition | [0G Zero Cup](https://0g.ai/arena/zero-cup) · June 2026 |
 
 <p align="right"><a href="#readme-top">↑ back to top</a></p>
