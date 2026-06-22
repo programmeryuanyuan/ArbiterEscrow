@@ -68,7 +68,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="border-b border-white/6 px-6 py-4 flex items-center justify-between">
         <div>
-          <p className="text-white font-bold text-lg">Arbiter Protocol</p>
+          <p className="text-white font-bold text-lg">Attesta Protocol</p>
           <p className="text-slate-500 text-xs mt-0.5">Agent-to-Agent Settlement · 0G Private Computer</p>
         </div>
         <div className="flex items-center gap-3">
@@ -252,7 +252,7 @@ export default async function DashboardPage() {
       </div>
 
       <footer className="border-t border-white/6 px-6 py-4 text-center text-xs text-slate-600">
-        Arbiter Protocol · Built for 0G Zero Cup · June 2026 ·{" "}
+        Attesta Protocol · Built for 0G Zero Cup · June 2026 ·{" "}
         <a href="https://0g.ai/arena/zero-cup" target="_blank" rel="noreferrer"
           className="hover:text-slate-400 transition-colors">
           0g.ai/arena/zero-cup ↗

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     ])
 
     const attestationHash = keccak256(
-      toHex(`0g-arbiter:${outputHash}:${criteriaHash}:${score}:${passed}`)
+      toHex(`0g-attesta:${outputHash}:${criteriaHash}:${score}:${passed}`)
     )
 
     // TX1 — requestCertification (nonce N)

@@ -2,14 +2,14 @@
 pragma solidity ^0.8.20;
 
 /**
- * ArbiterProtocol — AI quality certification protocol via 0G Private Computer (TEE)
+ * AttestProtocol — AI quality certification protocol via 0G Private Computer (TEE)
  *
  * State machine: Created → Submitted → Resolved
  *
  * Trust model: TEE attestation from 0G Private Computer replaces jury/oracle.
  * The compute operator cannot read task content; the attestation is verifiable on-chain.
  */
-contract ArbiterProtocol {
+contract AttestProtocol {
 
     // ─── Types ───────────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ contract ArbiterProtocol {
 
     // ─── State ────────────────────────────────────────────────────────────────
 
-    address public arbiterTEE;   // 0G Private Computer attestation relayer
+    address public attestaTEE;   // 0G Private Computer attestation relayer
     uint256 public nextTaskId;
     mapping(uint256 => Task) public tasks;
 
@@ -64,8 +64,8 @@ contract ArbiterProtocol {
 
     // ─── Constructor ──────────────────────────────────────────────────────────
 
-    constructor(address _arbiterTEE) {
-        arbiterTEE = _arbiterTEE;
+    constructor(address _attestaTEE) {
+        attestaTEE = _attestaTEE;
     }
 
     // ─── Core Functions ───────────────────────────────────────────────────────
@@ -120,7 +120,7 @@ contract ArbiterProtocol {
     /**
      * 0G Private Computer TEE relayer posts attestation.
      * In production: attestation signature verified against 0G attestation root.
-     * For MVP demo: trusted relayer address (arbiterTEE) controls this call.
+     * For MVP demo: trusted relayer address (attestaTEE) controls this call.
      *
      * passed=true  → escrow released to agentB
      * passed=false → escrow refunded to agentA
@@ -131,7 +131,7 @@ contract ArbiterProtocol {
         bool    passed,
         uint8   score
     ) external {
-        require(msg.sender == arbiterTEE, "Only arbiter");
+        require(msg.sender == attestaTEE, "Only attesta");
         Task storage t = tasks[taskId];
         require(t.status == Status.Submitted, "Wrong status");
 
@@ -183,7 +183,7 @@ contract ArbiterProtocol {
 
     /**
      * External entry point: any 0G protocol submits output + criteria hashes.
-     * TEE relayer (arbiterTEE) posts the attestation via resolveExternalCert().
+     * TEE relayer (attestaTEE) posts the attestation via resolveExternalCert().
      * No escrow required — pure certification primitive.
      */
     function requestCertification(
@@ -212,7 +212,7 @@ contract ArbiterProtocol {
         bool    passed,
         bytes32 attestationHash
     ) external {
-        require(msg.sender == arbiterTEE, "Only arbiter");
+        require(msg.sender == attestaTEE, "Only attesta");
         Certificate storage c = certificates[certId];
         require(c.issuedAt == 0, "Already resolved");
 

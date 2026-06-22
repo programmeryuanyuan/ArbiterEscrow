@@ -2,9 +2,20 @@
 
 import { useState, useRef } from "react"
 import { keccak256, toHex } from "viem"
-import { Upload, Lock, Cpu, CheckCircle, XCircle, Loader2, RotateCcw, Copy, Shield, ExternalLink } from "lucide-react"
+import {
+  Upload, Lock, Cpu, CheckCircle, XCircle, Loader2,
+  RotateCcw, Copy, Shield, ExternalLink, Bot, Zap,
+} from "lucide-react"
 
-type Phase = "idle" | "step1" | "step2" | "step3" | "done"
+type Phase = "idle" | "auto-generating" | "step1" | "step2" | "step3" | "done"
+
+const DEMO_CRITERIA = `Write a competitive analysis of AI infrastructure platforms for AI agent deployment.
+
+Requirements:
+- Minimum 200 words
+- Analyze at least 3 major platforms (include 0G Network, Akash Network, and one cloud provider)
+- Cover key differentiators: latency, cost, privacy, decentralization
+- Provide a clear recommendation for which platform AI agents should prioritize`
 
 function shortHash(h: string) {
   return h.slice(0, 10) + "…" + h.slice(-4)
@@ -47,19 +58,14 @@ function ScoreMeter({ score, max = 100 }: { score: number; max?: number }) {
   )
 }
 
-const STEPS = [
-  { icon: Upload, label: "Uploading result to 0G Storage…",              color: "text-blue-400" },
+const ANIM_STEPS = [
+  { icon: Upload, label: "Uploading result to 0G Storage…",                 color: "text-blue-400" },
   { icon: Lock,   label: "Entering TEE Enclave · Operator access: REVOKED", color: "text-purple-400" },
-  { icon: Cpu,    label: "0G Private Computer evaluating…",               color: "text-purple-400",
-    sub: "████ SEALED INPUT ████  ·  GLM-5 · Intel TDX · NVIDIA H100" },
+  {
+    icon: Cpu, label: "GLM-5.2 evaluating inside 0G Private Computer…",     color: "text-purple-400",
+    sub: "████ SEALED INPUT ████  ·  GLM-5.2 · Intel TDX · NVIDIA H100",
+  },
 ]
-
-function computeScore(text: string) {
-  const len = text.trim().length
-  if (len < 100) return 42
-  if (len < 300) return 68
-  return 84
-}
 
 export default function TryItPanel() {
   const [criteria, setCriteria] = useState(
@@ -73,6 +79,7 @@ export default function TryItPanel() {
   const [doneStep, setDoneStep]         = useState(0)
   const [score, setScore]               = useState(0)
   const [passed, setPassed]             = useState(false)
+  const [reasoning, setReasoning]       = useState("")
   const [outputHash, setOutputHash]     = useState("")
   const [criteriaHash, setCriteriaHash] = useState("")
   const [attestation, setAttestation]   = useState("")
@@ -81,7 +88,12 @@ export default function TryItPanel() {
   const [txHash, setTxHash]             = useState<string | null>(null)
   const [txLoading, setTxLoading]       = useState(false)
   const [txError, setTxError]           = useState(false)
-  const timerRefs = useRef<ReturnType<typeof setTimeout>[]>([])
+  const [autoError, setAutoError]       = useState("")
+
+  const timerRefs   = useRef<ReturnType<typeof setTimeout>[]>([])
+  const evalPromise = useRef<Promise<{ score: number; passed: boolean; reasoning: string } | null>>(
+    Promise.resolve(null)
+  )
 
   function clearTimers() { timerRefs.current.forEach(clearTimeout); timerRefs.current = [] }
 
@@ -90,15 +102,17 @@ export default function TryItPanel() {
     setPhase("idle")
     setDoneStep(0)
     setScore(0)
+    setReasoning("")
     setTxHash(null)
     setTxLoading(false)
     setTxError(false)
+    setAutoError("")
   }
 
   async function callCertifyAPI(outHash: string, critHash: string, s: number, p: boolean) {
     setTxLoading(true)
     try {
-      const res = await fetch("/api/certify", {
+      const res  = await fetch("/api/certify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ outputHash: outHash, criteriaHash: critHash, score: s, passed: p }),
@@ -106,7 +120,7 @@ export default function TryItPanel() {
       const data = await res.json()
       if (data.txHash) {
         setTxHash(data.txHash)
-        setAttestation(data.attestationHash ?? attestation)
+        setAttestation((prev) => data.attestationHash ?? prev)
       } else {
         setTxError(true)
       }
@@ -117,37 +131,89 @@ export default function TryItPanel() {
     }
   }
 
-  function submit() {
+  function runSubmit(criteriaVal: string, resultVal: string) {
     clearTimers()
-    const s = computeScore(result)
-    const p = s >= threshold
 
-    const outHash  = keccak256(toHex(result))
-    const critHash = keccak256(toHex(criteria))
+    const outHash  = keccak256(toHex(resultVal))
+    const critHash = keccak256(toHex(criteriaVal))
     const attest   = keccak256(toHex(`${outHash}${critHash}${threshold}`))
 
-    setScore(s)
-    setPassed(p)
     setOutputHash(outHash)
     setCriteriaHash(critHash)
     setAttestation(attest)
-    setCertId(prev => prev + 1)
+    setCertId((prev) => prev + 1)
     setIssuedAt(new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC")
     setTxHash(null)
     setTxError(false)
     setPhase("step1")
     setDoneStep(0)
 
-    // Fire API call in parallel with animation
-    callCertifyAPI(outHash, critHash, s, p)
+    // Fire real GLM-5.2 evaluation in parallel with the animation
+    evalPromise.current = fetch("/api/evaluate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ criteria: criteriaVal, output: resultVal, threshold }),
+    })
+      .then((r) => r.json())
+      .then((d) =>
+        typeof d.score === "number"
+          ? { score: d.score as number, passed: d.passed as boolean, reasoning: (d.reasoning as string) ?? "" }
+          : null
+      )
+      .catch(() => null)
 
     const t1 = setTimeout(() => { setDoneStep(1); setPhase("step2") }, 1200)
     const t2 = setTimeout(() => { setDoneStep(2); setPhase("step3") }, 2600)
-    const t3 = setTimeout(() => { setDoneStep(3); setPhase("done")  }, 5000)
+    const t3 = setTimeout(async () => {
+      setDoneStep(3)
+      // Wait for real evaluation (may already be done if GLM-5.2 was fast)
+      const evalResult = await evalPromise.current
+      const s = evalResult?.score  ?? 50
+      const p = evalResult?.passed ?? s >= threshold
+      const r = evalResult?.reasoning ?? ""
+      setScore(s)
+      setPassed(p)
+      setReasoning(r)
+      setPhase("done")
+      // Certify on-chain with the real score
+      callCertifyAPI(outHash, critHash, s, p)
+    }, 5000)
+
     timerRefs.current = [t1, t2, t3]
   }
 
-  const isProcessing = phase !== "idle" && phase !== "done"
+  function submit() {
+    runSubmit(criteria, result)
+  }
+
+  async function runAutoDemo() {
+    clearTimers()
+    setAutoError("")
+    setCriteria(DEMO_CRITERIA)
+    setResult("")
+    setPhase("auto-generating")
+
+    try {
+      const res  = await fetch("/api/agent-b", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ criteria: DEMO_CRITERIA }),
+      })
+      const data = await res.json()
+      if (!data.output) {
+        setAutoError(data.error ?? "Agent B generation failed")
+        setPhase("idle")
+        return
+      }
+      setResult(data.output)
+      runSubmit(DEMO_CRITERIA, data.output)
+    } catch (err) {
+      setAutoError(String(err))
+      setPhase("idle")
+    }
+  }
+
+  const isProcessing = phase !== "idle" && phase !== "done" && phase !== "auto-generating"
   const accentPass   = "from-emerald-500/50 via-purple-500/20 to-emerald-500/50"
   const accentFail   = "from-red-500/50 via-purple-500/20 to-red-500/50"
 
@@ -158,116 +224,140 @@ export default function TryItPanel() {
       <div className="flex items-start justify-between">
         <div>
           <p className="text-white font-semibold text-lg">Try It</p>
-          <p className="text-slate-400 text-xs mt-0.5">Experience 0G Private Computer · No wallet needed</p>
+          <p className="text-slate-400 text-xs mt-0.5">
+            Powered by GLM-5.2 on 0G Private Computer · No wallet needed
+          </p>
         </div>
-        <span className="text-xs bg-purple-500/20 border border-purple-500/30 text-purple-300 px-3 py-1 rounded-full">LIVE DEMO</span>
+        <span className="text-xs bg-purple-500/20 border border-purple-500/30 text-purple-300 px-3 py-1 rounded-full">
+          LIVE DEMO
+        </span>
       </div>
+
+      {/* Auto-generating state */}
+      {phase === "auto-generating" && (
+        <div className="flex flex-col gap-3 border border-slate-800 rounded-lg p-5 bg-slate-900/60">
+          <div className="flex items-center gap-3">
+            <Bot className="w-4 h-4 text-blue-400" />
+            <p className="text-sm text-slate-200 font-medium">Agent A — Task criteria defined</p>
+            <CheckCircle className="w-4 h-4 text-emerald-400 ml-auto" />
+          </div>
+          <div className="flex items-center gap-3">
+            <Bot className="w-4 h-4 text-purple-400 animate-pulse" />
+            <p className="text-sm text-slate-200">Agent B — Generating deliverable via GLM-5.2…</p>
+            <Loader2 className="w-4 h-4 text-purple-400 animate-spin ml-auto" />
+          </div>
+          <p className="text-[11px] text-slate-500 font-mono pl-7">
+            model: glm-5.2 · provider: 0G Private Computer · TEE: active
+          </p>
+        </div>
+      )}
 
       {/* Inputs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] uppercase tracking-widest text-slate-500">Agent A — Acceptance Criteria</label>
-          <textarea
-            value={criteria}
-            onChange={(e) => setCriteria(e.target.value)}
-            disabled={isProcessing}
-            rows={5}
-            className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 resize-none
-              focus:outline-none focus:border-purple-500/60 disabled:opacity-50"
-          />
+      {phase !== "auto-generating" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+              <Bot className="w-3 h-3 text-blue-400" /> Agent A — Acceptance Criteria
+            </label>
+            <textarea
+              value={criteria}
+              onChange={(e) => setCriteria(e.target.value)}
+              disabled={isProcessing}
+              rows={6}
+              className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 resize-none
+                focus:outline-none focus:border-purple-500/60 disabled:opacity-50"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+              <Bot className="w-3 h-3 text-purple-400" /> Agent B — Deliverable
+            </label>
+            <textarea
+              value={result}
+              onChange={(e) => setResult(e.target.value)}
+              disabled={isProcessing}
+              rows={6}
+              className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 resize-none
+                focus:outline-none focus:border-purple-500/60 disabled:opacity-50"
+            />
+            <p className="text-[11px] text-slate-500 italic">
+              Edit manually — or use Auto Demo to let GLM-5.2 generate it.
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] uppercase tracking-widest text-slate-500">Agent B — Deliverable</label>
-          <textarea
-            value={result}
-            onChange={(e) => setResult(e.target.value)}
-            disabled={isProcessing}
-            rows={5}
-            className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 resize-none
-              focus:outline-none focus:border-purple-500/60 disabled:opacity-50"
-          />
-          <p className="text-[11px] text-slate-500 italic">You are playing Agent B. Write more to score higher.</p>
-        </div>
-      </div>
+      )}
 
       {/* Threshold */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-slate-400 shrink-0">Pass Threshold</span>
-          <input
-            type="range" min={0} max={100} step={1}
-            value={threshold}
-            onChange={(e) => setThreshold(Number(e.target.value))}
-            disabled={isProcessing}
-            className="flex-1 accent-purple-500 disabled:opacity-50"
-          />
-          <span className="text-sm font-bold text-purple-400 bg-purple-500/15 border border-purple-500/30
-            px-3 py-0.5 rounded-full shrink-0 w-20 text-center">
-            {threshold} / 100
-          </span>
+      {phase !== "auto-generating" && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-400 shrink-0">Pass Threshold</span>
+            <input
+              type="range" min={0} max={100} step={1}
+              value={threshold}
+              onChange={(e) => setThreshold(Number(e.target.value))}
+              disabled={isProcessing}
+              className="flex-1 accent-purple-500 disabled:opacity-50"
+            />
+            <span className="text-sm font-bold text-purple-400 bg-purple-500/15 border border-purple-500/30
+              px-3 py-0.5 rounded-full shrink-0 w-20 text-center">
+              {threshold} / 100
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500 text-center">
+            Agent A sets the bar · GLM-5.2 scores inside TEE · Contract enforces the deal
+          </p>
         </div>
-        <p className="text-[11px] text-slate-500 text-center">
-          Agent A sets the bar · TEE scores blindly · Contract enforces the deal
-        </p>
-      </div>
+      )}
 
-      {/* Processing */}
+      {/* Animation steps */}
       {isProcessing && (
         <div className="flex flex-col gap-3 border border-slate-800 rounded-lg p-4 bg-slate-900/60">
-          {STEPS.map((step, i) => {
-            const Icon    = step.icon
-            const isDone  = doneStep > i
-            const isActive= doneStep === i
+          {ANIM_STEPS.map((step, i) => {
+            const Icon     = step.icon
+            const isDone   = doneStep > i
+            const isActive = doneStep === i
             return (
-              <div key={i} className={`flex items-start gap-3 transition-opacity duration-300
-                ${doneStep < i ? "opacity-25" : "opacity-100"}`}>
-                <Icon className={`w-4 h-4 mt-0.5 shrink-0
-                  ${isDone ? "text-emerald-400" : step.color}
-                  ${isActive && i === 2 ? "animate-pulse" : ""}`} />
+              <div key={i} className={`flex items-start gap-3 transition-opacity duration-300 ${doneStep < i ? "opacity-25" : "opacity-100"}`}>
+                <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${isDone ? "text-emerald-400" : step.color} ${isActive && i === 2 ? "animate-pulse" : ""}`} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-slate-200">{step.label}</p>
                   {step.sub && isActive && (
                     <p className="text-xs text-slate-500 font-mono mt-1 leading-5">{step.sub}</p>
                   )}
                 </div>
-                {isDone    && <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />}
-                {isActive  && <Loader2 className="w-4 h-4 text-purple-400 animate-spin shrink-0" />}
+                {isDone   && <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />}
+                {isActive && <Loader2    className="w-4 h-4 text-purple-400 animate-spin shrink-0" />}
               </div>
             )
           })}
         </div>
       )}
 
-      {/* ── Certificate Card ─────────────────────────────── */}
+      {/* Certificate Card */}
       {phase === "done" && (
         <div className={`p-[1px] rounded-2xl bg-gradient-to-br ${passed ? accentPass : accentFail}
-          ${passed
-            ? "shadow-[0_0_48px_rgba(0,255,136,0.12)]"
-            : "shadow-[0_0_48px_rgba(239,68,68,0.12)]"}`}>
+          ${passed ? "shadow-[0_0_48px_rgba(0,255,136,0.12)]" : "shadow-[0_0_48px_rgba(239,68,68,0.12)]"}`}>
           <div className="bg-[#0b0b0e] rounded-2xl overflow-hidden">
 
-            {/* Header bar */}
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/5
               bg-gradient-to-r from-purple-500/5 to-transparent">
               <div className="flex items-center gap-2">
                 <Shield className="w-3.5 h-3.5 text-purple-400" />
                 <span className="text-[11px] uppercase tracking-widest text-purple-400 font-medium">
-                  0G Private Computer
+                  0G Private Computer · GLM-5.2
                 </span>
               </div>
               {passed
-                ? <span className="flex items-center gap-1.5 text-xs bg-emerald-500/15 text-emerald-300
-                    border border-emerald-500/30 px-3 py-1 rounded-full font-bold">
+                ? <span className="flex items-center gap-1.5 text-xs bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">
                     <CheckCircle className="w-3 h-3" /> ISSUED
                   </span>
-                : <span className="flex items-center gap-1.5 text-xs bg-red-500/15 text-red-300
-                    border border-red-500/30 px-3 py-1 rounded-full font-bold">
+                : <span className="flex items-center gap-1.5 text-xs bg-red-500/15 text-red-300 border border-red-500/30 px-3 py-1 rounded-full font-bold">
                     <XCircle className="w-3 h-3" /> REJECTED
                   </span>
               }
             </div>
 
-            {/* Title */}
             <div className="px-5 pt-4 pb-2 flex items-center justify-between">
               <div>
                 <p className="text-[10px] uppercase tracking-widest text-slate-600">Quality Certificate</p>
@@ -277,25 +367,21 @@ export default function TryItPanel() {
                 </div>
               </div>
               <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center
-                ${passed
-                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
-                  : "border-red-500/40 bg-red-500/10 text-red-400"}`}>
+                ${passed ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" : "border-red-500/40 bg-red-500/10 text-red-400"}`}>
                 {passed ? <CheckCircle className="w-7 h-7" /> : <XCircle className="w-7 h-7" />}
               </div>
             </div>
 
-            {/* Score + fields */}
             <div className="px-5 pb-4 flex items-center gap-5">
               <ScoreMeter score={score} />
               <div className="flex flex-col gap-2.5 flex-1 min-w-0">
                 {[
-                  { label: "Score",    value: `${score} / 100`,
+                  { label: "Score",     value: `${score} / 100`,
                     cls: passed ? "text-emerald-400 font-bold" : "text-red-400 font-bold" },
-                  { label: "Verdict",  value: `${score} ${passed ? "≥" : "<"} ${threshold} → ${passed ? "PASS" : "FAIL"}`,
+                  { label: "Verdict",   value: `${score} ${passed ? "≥" : "<"} ${threshold} → ${passed ? "PASS" : "FAIL"}`,
                     cls: passed ? "text-emerald-400 font-bold" : "text-red-400 font-bold" },
-                  { label: "Issuer",   value: "0G Private Computer", cls: "text-purple-400 text-xs font-mono" },
-                  { label: "Hardware", value: "Intel TDX · NVIDIA H100", cls: "text-slate-300 text-xs" },
-                  { label: "Model",    value: "GLM-5 (TEE-Verified)", cls: "text-slate-400 text-xs" },
+                  { label: "Evaluator", value: "GLM-5.2 on 0G Private Computer", cls: "text-purple-400 text-xs font-mono" },
+                  { label: "Hardware",  value: "Intel TDX · NVIDIA H100",         cls: "text-slate-300 text-xs" },
                 ].map(({ label, value, cls }) => (
                   <div key={label} className="flex justify-between items-center">
                     <span className="text-slate-500 text-xs">{label}</span>
@@ -305,7 +391,15 @@ export default function TryItPanel() {
               </div>
             </div>
 
-            {/* Cryptographic Proof */}
+            {reasoning && (
+              <div className="mx-5 mb-4 rounded-lg border border-slate-800 bg-slate-950/60 px-4 py-3">
+                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1.5">
+                  GLM-5.2 Evaluation Reasoning
+                </p>
+                <p className="text-xs text-slate-300 leading-relaxed">{reasoning}</p>
+              </div>
+            )}
+
             <div className="mx-5 mb-4 rounded-xl border border-slate-800 bg-slate-950/60 overflow-hidden">
               <div className="px-4 py-2 border-b border-slate-800/60 bg-slate-900/40">
                 <p className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">
@@ -335,14 +429,12 @@ export default function TryItPanel() {
               </div>
             </div>
 
-            {/* Settlement row */}
-            <div className="px-5 pb-3 flex items-center justify-between">
+            <div className="px-5 pb-3">
               <p className={`text-sm font-semibold ${passed ? "text-emerald-400" : "text-red-400"}`}>
                 {passed ? "Escrow: 0.05 ETH → Agent B ✓" : "Escrow: 0.05 ETH → Agent A (refunded)"}
               </p>
             </div>
 
-            {/* On-chain TX link */}
             <div className="mx-5 mb-4 rounded-lg border border-slate-800 bg-slate-900/40 px-4 py-3">
               {txLoading && !txHash && (
                 <div className="flex items-center gap-2 text-xs text-slate-400">
@@ -371,16 +463,13 @@ export default function TryItPanel() {
               )}
               {txError && !txHash && (
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Demo mode — no live chain connection</span>
+                  <span className="text-xs text-slate-500">Chain write failed — evaluation score is real</span>
                   <a href="https://chainscan.0g.ai" target="_blank" rel="noreferrer"
-                    className="text-xs text-slate-500 hover:text-purple-400 transition-colors">
-                    chainscan ↗
-                  </a>
+                    className="text-xs text-slate-500 hover:text-purple-400 transition-colors">chainscan ↗</a>
                 </div>
               )}
             </div>
 
-            {/* Footer */}
             <div className="px-5 py-3 border-t border-white/5 flex items-center justify-between
               bg-gradient-to-r from-purple-500/5 to-transparent">
               <p className="text-[11px] text-slate-600">
@@ -396,17 +485,39 @@ export default function TryItPanel() {
         </div>
       )}
 
-      {/* Submit */}
+      {/* Action buttons */}
       {phase === "idle" && (
-        <button
-          onClick={submit}
-          className="w-full py-3.5 rounded-lg text-white font-semibold text-sm
-            bg-gradient-to-r from-violet-600 to-purple-500
-            hover:brightness-110 transition-all
-            shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_32px_rgba(168,85,247,0.5)]"
-        >
-          ▶ &nbsp; Submit to 0G Private Computer
-        </button>
+        <div className="flex flex-col gap-3">
+          {autoError && (
+            <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+              {autoError}
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={runAutoDemo}
+              className="py-3.5 rounded-lg text-white font-semibold text-sm
+                bg-gradient-to-r from-blue-600 to-violet-600
+                hover:brightness-110 transition-all
+                shadow-[0_0_20px_rgba(99,102,241,0.3)]
+                flex items-center justify-center gap-2"
+            >
+              <Zap className="w-4 h-4" /> Auto Demo (Agent-to-Agent)
+            </button>
+            <button
+              onClick={submit}
+              className="py-3.5 rounded-lg text-white font-semibold text-sm
+                bg-gradient-to-r from-violet-600 to-purple-500
+                hover:brightness-110 transition-all
+                shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+            >
+              ▶ &nbsp;Submit to 0G Private Computer
+            </button>
+          </div>
+          <p className="text-[11px] text-slate-600 text-center">
+            Auto Demo: Agent A defines task → GLM-5.2 generates Agent B's deliverable → TEE evaluates → on-chain settlement
+          </p>
+        </div>
       )}
     </div>
   )

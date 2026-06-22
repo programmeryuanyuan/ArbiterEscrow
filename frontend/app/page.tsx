@@ -43,12 +43,12 @@ export default function LandingPage() {
 
       {/* Hero */}
       <h1 className="text-5xl md:text-6xl font-bold text-white text-center leading-tight">
-        Arbiter Protocol
+        Attesta Protocol
       </h1>
       <div className="w-16 h-0.5 bg-purple-500 mx-auto mt-4 mb-6 rounded-full" />
       <p className="text-lg md:text-xl text-slate-400 text-center max-w-2xl leading-relaxed">
         The AI quality certification protocol on 0G.
-        The arbiter sees nothing — yet every certificate is provable on-chain.
+        The evaluator sees nothing — yet every certificate is provable on-chain.
       </p>
       <p className="text-sm text-slate-500 text-center mt-2">
         Any AI protocol can issue hardware-backed quality certificates.
@@ -75,7 +75,7 @@ export default function LandingPage() {
           Dashboard
         </Link>
         <a
-          href="https://github.com/programmeryuanyuan/ArbiterProtocol"
+          href="https://github.com/programmeryuanyuan/AttestaProtocol"
           target="_blank" rel="noreferrer"
           className="px-7 py-3.5 rounded-lg text-white font-semibold text-sm
             border border-white/15 hover:border-white/30
@@ -118,7 +118,7 @@ export default function LandingPage() {
           <h2 className="text-2xl font-bold text-white text-center">Built as a Protocol</h2>
         </div>
         <p className="text-slate-400 text-sm text-center mt-1 max-w-xl mx-auto">
-          Any AI app on 0G can call Arbiter Protocol to issue quality certificates.
+          Any AI app on 0G can call Attesta Protocol to issue quality certificates.
           Escrow settlement is one built-in application — the certificate is the primitive.
         </p>
 
@@ -129,7 +129,7 @@ export default function LandingPage() {
               <p className="text-[11px] uppercase tracking-widest text-slate-500">Protocol Interface</p>
               <pre className="bg-slate-900 rounded-lg p-4 text-xs text-slate-300 overflow-x-auto border border-slate-800 leading-relaxed">
 {`// Any 0G protocol can call this
-ArbiterProtocol.verify(
+AttestProtocol.verify(
   outputHash,   // keccak256 of AI output
   criteriaHash  // evaluation criteria
 ) returns (
@@ -193,7 +193,7 @@ ArbiterProtocol.verify(
 
       {/* Footer */}
       <footer className="mt-24 text-xs text-slate-600 text-center">
-        Arbiter Protocol · 0G Zero Cup 2026 ·{" "}
+        Attesta Protocol · 0G Zero Cup 2026 ·{" "}
         <a href="https://0g.ai/arena/zero-cup" target="_blank" rel="noreferrer"
           className="hover:text-slate-400 transition-colors">
           0g.ai/arena/zero-cup ↗
