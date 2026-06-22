@@ -55,7 +55,7 @@
 | Oracle | ✅ operator | Centralized | ❌ | $ |
 | **Arbiter Protocol** | **❌ no one** | **Hardware** | **✅ on-chain** | **~$0.008** |
 
-**The solution:** ArbiterEscrow issues **Quality Certificates** backed by 0G Private Computer (TEE). The AI output enters a sealed Intel TDX hardware enclave. The compute operator cannot read the content. The evaluation generates a cryptographic attestation posted on 0G Chain. Any downstream contract — or human — can verify the certificate independently.
+**The solution:** Arbiter Protocol issues **Quality Certificates** backed by 0G Private Computer (TEE). The AI output enters a sealed Intel TDX hardware enclave. The compute operator cannot read the content. The evaluation generates a cryptographic attestation posted on 0G Chain. Any downstream contract — or human — can verify the certificate independently.
 
 **The core innovation:** The certificate is the primitive. Escrow settlement is one built-in application of it. Think of it as SSL for AI outputs — you don't trust the website; you trust the certificate from the hardware.
 
@@ -88,7 +88,7 @@
 ```mermaid
 sequenceDiagram
     participant A as Agent A (Client)
-    participant C as ArbiterEscrow.sol<br/>0G Chain · 16661
+    participant C as ArbiterProtocol.sol<br/>0G Chain · 16661
     participant S as 0G Storage
     participant T as 0G Private Computer<br/>(TEE Enclave)
 
@@ -135,14 +135,14 @@ Arbiter Protocol is designed as a composable primitive, not just an app. Any 0G 
 
 ```solidity
 // Any 0G protocol calls this to request a certificate
-ArbiterEscrow.requestCertification(
+ArbiterProtocol.requestCertification(
     subject,      // agent address being evaluated
     outputHash,   // keccak256 of the AI output
     criteriaHash  // keccak256 of evaluation criteria
 ) returns (certId)
 
 // TEE relayer resolves it
-ArbiterEscrow.resolveExternalCert(certId, score, passed, attestationHash)
+ArbiterProtocol.resolveExternalCert(certId, score, passed, attestationHash)
 // → emits CertificateIssued(certId, subject, outputHash, score, passed, attestation)
 ```
 
