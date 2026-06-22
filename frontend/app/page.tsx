@@ -75,7 +75,7 @@ export default function LandingPage() {
           Dashboard
         </Link>
         <a
-          href="https://github.com/programmeryuanyuan/ArbiterEscrow"
+          href="https://github.com/programmeryuanyuan/ArbiterProtocol"
           target="_blank" rel="noreferrer"
           className="px-7 py-3.5 rounded-lg text-white font-semibold text-sm
             border border-white/15 hover:border-white/30
@@ -129,7 +129,7 @@ export default function LandingPage() {
               <p className="text-[11px] uppercase tracking-widest text-slate-500">Protocol Interface</p>
               <pre className="bg-slate-900 rounded-lg p-4 text-xs text-slate-300 overflow-x-auto border border-slate-800 leading-relaxed">
 {`// Any 0G protocol can call this
-ArbiterEscrow.verify(
+ArbiterProtocol.verify(
   outputHash,   // keccak256 of AI output
   criteriaHash  // evaluation criteria
 ) returns (
