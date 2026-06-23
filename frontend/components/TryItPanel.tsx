@@ -457,27 +457,34 @@ export default function TryItPanel() {
                     </div>
                   </div>
                 ))}
-                <div className="flex items-center gap-3 pt-1.5 mt-0.5 border-t border-slate-800 flex-wrap">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[10px] text-emerald-400 uppercase tracking-wider">On-Chain Cert</span>
-                  </span>
-                  {storageHash && (
+                <div className="flex flex-col gap-1.5 pt-1.5 mt-0.5 border-t border-slate-800">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                      <span className="text-[10px] text-blue-400 uppercase tracking-wider">0G Storage Anchored</span>
-                      {storageExplorer && (
-                        <a
-                          href={storageExplorer}
-                          target="_blank" rel="noreferrer"
-                          className="flex items-center gap-0.5 text-[10px] text-blue-400 hover:text-blue-300
-                            border border-blue-500/30 bg-blue-500/10 px-1.5 py-0.5 rounded-full
-                            transition-colors font-medium uppercase tracking-wider"
-                        >
-                          storagescan <ExternalLink className="w-2.5 h-2.5" />
-                        </a>
-                      )}
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-[10px] text-emerald-400 uppercase tracking-wider">On-Chain Cert</span>
                     </span>
+                    {storageHash && (
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                        <span className="text-[10px] text-blue-400 uppercase tracking-wider">0G Storage Anchored</span>
+                        {storageExplorer && (
+                          <a
+                            href={storageExplorer}
+                            target="_blank" rel="noreferrer"
+                            className="flex items-center gap-0.5 text-[10px] text-blue-400 hover:text-blue-300
+                              border border-blue-500/30 bg-blue-500/10 px-1.5 py-0.5 rounded-full
+                              transition-colors font-medium uppercase tracking-wider"
+                          >
+                            storagescan <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                  {storageHash && (
+                    <p className="text-[10px] text-slate-600 leading-relaxed">
+                      Demo: content stored unencrypted for verifiability. In production, Agent B encrypts before upload — only Agent A and the TEE hold the key. The TEE privacy guarantee is about evaluation: the compute operator cannot read inference input even when content is plaintext.
+                    </p>
                   )}
                 </div>
               </div>
