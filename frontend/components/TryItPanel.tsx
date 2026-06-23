@@ -90,12 +90,13 @@ export default function TryItPanel() {
   const [txError, setTxError]           = useState(false)
   const [autoError, setAutoError]       = useState("")
 
-  const [storageUri,  setStorageUri]  = useState("")
-  const [storageHash, setStorageHash] = useState("")
+  const [storageUri,      setStorageUri]      = useState("")
+  const [storageHash,     setStorageHash]     = useState("")
+  const [storageExplorer, setStorageExplorer] = useState("")
 
   const timerRefs      = useRef<ReturnType<typeof setTimeout>[]>([])
   const evalPromise    = useRef<Promise<{ score: number; passed: boolean; reasoning: string } | null>>(Promise.resolve(null))
-  const uploadPromise  = useRef<Promise<{ rootHash: string; txHash: string; uri: string } | null>>(Promise.resolve(null))
+  const uploadPromise  = useRef<Promise<{ rootHash: string; txHash: string; uri: string; explorer: string } | null>>(Promise.resolve(null))
 
   function clearTimers() { timerRefs.current.forEach(clearTimeout); timerRefs.current = [] }
 
@@ -111,6 +112,7 @@ export default function TryItPanel() {
     setAutoError("")
     setStorageUri("")
     setStorageHash("")
+    setStorageExplorer("")
   }
 
   async function callCertifyAPI(outHash: string, critHash: string, s: number, p: boolean) {
@@ -148,6 +150,7 @@ export default function TryItPanel() {
     setAttestation(attest)
     setStorageUri("")
     setStorageHash("")
+    setStorageExplorer("")
     setCertId(0)
     setIssuedAt(new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC")
     setTxHash(null)
@@ -164,7 +167,7 @@ export default function TryItPanel() {
       .then((r) => r.json())
       .then((d) =>
         d.rootHash
-          ? { rootHash: d.rootHash as string, txHash: d.txHash as string, uri: d.uri as string }
+          ? { rootHash: d.rootHash as string, txHash: d.txHash as string, uri: d.uri as string, explorer: d.explorer as string }
           : null
       )
       .catch(() => null)
@@ -199,6 +202,7 @@ export default function TryItPanel() {
         setOutputHash(finalOutHash)
         setStorageHash(uploadResult.rootHash)
         setStorageUri(uploadResult.uri)
+        setStorageExplorer(uploadResult.explorer ?? "")
       }
 
       const s = evalResult?.score      ?? 50
@@ -462,6 +466,17 @@ export default function TryItPanel() {
                     <span className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
                       <span className="text-[10px] text-blue-400 uppercase tracking-wider">0G Storage Anchored</span>
+                      {storageExplorer && (
+                        <a
+                          href={storageExplorer}
+                          target="_blank" rel="noreferrer"
+                          className="flex items-center gap-0.5 text-[10px] text-blue-400 hover:text-blue-300
+                            border border-blue-500/30 bg-blue-500/10 px-1.5 py-0.5 rounded-full
+                            transition-colors font-medium uppercase tracking-wider"
+                        >
+                          storagescan <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      )}
                     </span>
                   )}
                 </div>
